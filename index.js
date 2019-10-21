@@ -9,7 +9,7 @@ const projects = [
   { id: "1", title: "Novo Projeto 1", tasks: []}
 ];
 
-// Middleware global
+// Middleware para contagens das requisições
 server.use((req, res, next) => {
   requisicoes++;
   console.log(`Total de requisições: ${requisicoes};`);
@@ -17,9 +17,9 @@ server.use((req, res, next) => {
   next();
 });
 
-// Middleware local
+// Middleware para verificar se existe projeto 
 function checkProjectInArray(req, res, next) {
-  const index = projects.findIndex(projects => projects.id === req.params.id)
+  const index = projects.findIndex(project => project.id == req.params.id)
   const project = projects[index];
 
   if (!project) {
@@ -37,36 +37,44 @@ server.post('/projects', (req, res) => {
   return res.json(projects);
 })
 
-//Rota que lista todos projetos e suas tarefas;
+/**
+ * Retorna todos os projetos
+ */
 server.get('/projects', (req, res) => {
   return res.json(projects);
 })
 
-// A rota deve alterar apenas o título do projeto com o id;
+/**
+ * Altera o titulo do projeto passando sua id e title
+ */
 server.put('/projects/:id', checkProjectInArray, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
-  const index = projects.findIndex(projects => projects.id === id);
+  const index = projects.findIndex(project => project.id == id);
   projects[index].title = title;
   
   return res.json(projects[index]);
 })
 
-//A rota deve deletar o projeto com o id;
+/**
+ * Deleta projeto passando sua id
+ */
 server.delete('/projects/:id', checkProjectInArray, (req, res) => {
   const { id } = req.params;
-  const index = projects.findIndex(projects => projects.id === id);
+  const index = projects.findIndex(project => project.id == id);
   
   projects.splice(index, 1)
 
   return res.send();
 })
 
-//armazena uma nova tarefa no array de tarefas de um projeto id;
+/**
+ * Adiciona uma nova tarefa ao projeto passando sua id e tasks
+ */
 server.post('/projects/:id/tasks', checkProjectInArray, (req, res) => {
   const { id } = req.params;
   const { tasks } = req.body;
-  const index = projects.findIndex(projects => projects.id === id);
+  const index = projects.findIndex(project => project.id == id);
   
   projects[index].tasks.push(tasks);
   return res.json(projects[index]);
